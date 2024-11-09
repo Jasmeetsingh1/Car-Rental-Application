@@ -1,0 +1,158 @@
+#container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+}
+
+#main {
+    display: flex;
+    justify-content: center;
+}
+
+#country {
+    width: 25%;
+    height: 60px;
+}
+
+#input {
+    display: flex;
+    gap: 5%;
+    justify-content: center;
+    margin-top: 3%;
+}
+
+#color {
+    color: rgb(110, 136, 163);
+}
+
+#city {
+    width: 25%;
+    height: 60px;
+}
+
+#confirm1 {
+    color: white;
+    background-color: rgb(16, 163, 16);
+    width: 25%;
+    height: 49px;
+    margin-top: 10%;
+    border-radius: 5%;
+    border: none;
+    cursor: pointer;
+}
+
+#con {
+    display: flex;
+    justify-content: center;
+
+}
+
+.header {
+
+    background-color: #000;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    /* position: fixed; */
+    width: 100%;
+    height: 80px;
+}
+
+#nav_logo {
+
+    height: 50px;
+}
+
+#navbar>{
+    margin-top: 0;
+    height: 80px;
+    width: 100%;
+    position: fixed;
+    z-index: 1;
+}
+#nav{
+  max-height: 80px;
+  display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 20px;
+    background-color: #000;
+    color: white;
+}
+#left_nav{
+    width: 30%;
+    display: flex;
+    justify-content: space-around;
+}
+#sidebar{
+    width: 5%;
+    margin-left: -100px;
+    margin-top: 10px;
+}
+#sidebar>hr{
+    height: 1px;
+    background-color: white;
+    margin-top: 4px;
+}
+#logo{
+    height: 45px;
+    width: 50%;
+    margin-left: -210px;
+}
+#right_nav{
+    width: 45%;
+    display: flex;
+    color: white;
+    font-size: 18px;
+    font-weight: bolder;
+    justify-content: space-around;
+    float: right;
+}
+#low_nav{
+    display: none;
+      position: fixed;
+      z-index: 1; 
+      padding-top: 100px; 
+      left: 0;
+      width: 100%; 
+      height: 100%; 
+      overflow: auto; 
+      background-color: #3c3c3c; 
+      background-color: rgba(0,0,0,0.7);
+      
+  }
+    
+  #sidebarNav{
+    background-color: #fefefe;
+      padding: 20px;
+      height: 600px;
+      /* border: 1px solid #888; */
+      width: 28%;
+      margin-top: -8%;
+  }
+  #sidebarNav>div{
+    display: flex;
+    align-items: center;
+    margin-bottom: 12%;
+  }
+  #sidebarNav>div:nth-child(1){
+    height: 60px;
+    width: 418px;
+    background-color: #e5e8ec;
+    margin-top: -12px;
+    margin-left: -20px;
+    margin-bottom: 6%;
+  }
+  #sidebarNav>div>img{
+    height: 30px;
+  }
+  #sidebarNav>div:nth-child(1)>i{
+    margin-left: 7%;
+    margin-right: 2%;
+  }
+  #sidebarNav>div>i{
+    margin-right: 2%;
+    margin-left: 2%;
+  }
+  

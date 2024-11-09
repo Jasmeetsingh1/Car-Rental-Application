@@ -1,0 +1,45 @@
+/* CarRentPage.css */
+.container {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+  }
+  
+  .sidebar {
+    width: 200px;
+    padding: 20px;
+    background-color: #f2f2f2;
+  }
+  
+  .main-content {
+    flex: 1;
+    margin-left: 20px;
+  }
+  
+  .filter-option {
+    margin-bottom: 20px;
+  }
+  
+  .car-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .car-card {
+    border: 1px solid #ccc;
+    padding: 20px;
+  }
+  
+  .rent-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
+  .rent-button:hover {
+    background-color: #0056b3;
+  }
+  

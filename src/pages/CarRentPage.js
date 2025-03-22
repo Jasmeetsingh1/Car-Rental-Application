@@ -32,15 +32,15 @@ const CarRentPage = () => {
       const data = await response.json();
       console.log("Cars data:", data);
 
-      // Filter cars based on the selected city
-      const filteredCars = data.filter(car => car.carCity === city);
+      // Filter cars based on the selected city and availability
+      const filteredCars = data.filter(car => car.carCity === city && car.available);
       setCars(filteredCars);
     } catch (error) {
       console.error("Error fetching cars:", error);
       toast({
         title: "Error",
         description: "Failed to fetch cars. Please try again later.",
-        type: "error",
+        variant: "destructive",
       });
     }
   }, [isLoaded, isSignedIn, userId, city, toast]);
@@ -63,11 +63,10 @@ const CarRentPage = () => {
     try {
       console.log(`Renting car with ID: ${carId}`);
       const response = await fetch(`http://localhost:8080/api/car/rent/${carId}`, {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ UserId: userId }),
       });
 
       if (response.ok) {
@@ -75,15 +74,17 @@ const CarRentPage = () => {
         toast({
           title: "Car rented successfully!",
           description: "You have successfully rented the car.",
-          type: "success",
+          variant: "success",
         });
-        fetchCars();
+
+        // Remove the rented car from the state
+        setCars(prevCars => prevCars.filter(car => car._id !== carId));
       } else {
         console.error("Error renting car:", response.statusText);
         toast({
           title: "Error",
           description: "There was an error renting the car.",
-          type: "error",
+          variant: "destructive",
         });
       }
     } catch (error) {
@@ -91,7 +92,7 @@ const CarRentPage = () => {
       toast({
         title: "Error",
         description: "There was an error renting the car.",
-        type: "error",
+        variant: "destructive",
       });
     }
   };

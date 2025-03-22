@@ -17,18 +17,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-const storage = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, "./uploads");
-  },
-  filename: (req, file, callback) => {
-    callback(null, file.originalname);
-  },
-});
-
-const upload = multer({ storage });
-
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
@@ -62,46 +50,43 @@ const carSchema = new mongoose.Schema({
 const Country = mongoose.model('Country', countrySchema);
 const Car = mongoose.model('Car', carSchema);
 
-app.get('/api/countries', async (req, res) => {
-  try {
-    const countries = await Country.find();
-    res.json(countries);
-  } catch (error) {
-    console.error('Error fetching countries:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+// Storage setup for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "./uploads");
+  },
+  filename: (req, file, callback) => {
+    callback(null, file.originalname);
+  },
 });
+
+const upload = multer({ storage });
 
 app.get('/api/cars', async (req, res) => {
   try {
-    const cars = await Car.find();
+    // Fetch only available cars
+    const cars = await Car.find({ available: true });
 
     // Decrypt each car's data
     const decryptedCars = cars.map(car => {
       const decryptedCar = { ...car._doc };
 
-      // Iterate over each field in the car data
       for (const [key, encryptedData] of Object.entries(car._doc)) {
-        // Decrypt only if the data is a string and has been encrypted, except for carSeats
         if (typeof encryptedData === 'string' && encryptedData.includes('|') && key !== 'carSeats') {
           try {
             const decryptedPoints = decryptField(encryptedData, d, p);
-
-            // Reconstruct the string from the decrypted points
             const decryptedString = decryptedPoints.map(point => {
               const index = points.findIndex(p => p[0] === point[0] && p[1] === point[1]);
               return String.fromCharCode(index);
             }).join('');
-
             decryptedCar[key] = decryptedString;
           } catch (decryptionError) {
             console.error(`Error decrypting field ${key}:`, decryptionError);
           }
         } else {
-          decryptedCar[key] = encryptedData; // Keep carSeats as is
+          decryptedCar[key] = encryptedData;
         }
       }
-
       return decryptedCar;
     });
 
@@ -111,21 +96,6 @@ app.get('/api/cars', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
-function validateCarData(carData) {
-  const requiredFields = [
-    'UserId', 'carName', 'carNumber', 'carModel', 'carType', 'carSeats', 'carFuelType',
-    'carDeliveryType', 'carPrice', 'carCountry', 'carCity', 'startDate', 'endDate'
-  ];
-  
-  for (let field of requiredFields) {
-    if (!carData[field]) {
-      console.error('validateCarData: Missing required field', { field, carData });
-      return false;
-    }
-  }
-  return true;
-}
 
 app.post('/api/car/add', upload.single('carImage'), async (req, res) => {
   try {
@@ -156,7 +126,7 @@ app.post('/api/car/add', upload.single('carImage'), async (req, res) => {
       carNumber,
       carModel,
       carType,
-      carSeats, // Do not encrypt
+      carSeats,
       carFuelType,
       carDeliveryType,
       carPrice,
@@ -165,13 +135,9 @@ app.post('/api/car/add', upload.single('carImage'), async (req, res) => {
       carImage,
       startDate,
       endDate,
-      available: true
+      available: true // Newly added cars should be available
     };
-    
-    if (!validateCarData(carData)) {
-      throw new Error('Validation failed for car data');
-    }
-    
+
     // Encrypt each field of car data except for carSeats
     const encryptedFields = {};
     for (const [key, value] of Object.entries(carData)) {
@@ -179,11 +145,10 @@ app.post('/api/car/add', upload.single('carImage'), async (req, res) => {
         const { encryptedData } = handleEncryptionDecryption(value, points, a, b, p, d);
         encryptedFields[key] = encryptedData;
       } else {
-        encryptedFields[key] = value; // Directly assign carSeats and other non-string fields
+        encryptedFields[key] = value;
       }
     }
     
-    // Create a new car document with encrypted data
     const newCar = new Car(encryptedFields);
     await newCar.save();
 
@@ -194,7 +159,35 @@ app.post('/api/car/add', upload.single('carImage'), async (req, res) => {
   }
 });
 
+app.patch('/api/car/rent/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    // Update the car's availability to false
+    const updatedCar = await Car.findByIdAndUpdate(id, { available: false }, { new: true });
+
+    if (!updatedCar) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+
+    res.json({ message: 'Car rented successfully', car: updatedCar });
+  } catch (error) {
+    console.error('Error renting car:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/countries', async (req, res) => {
+  try {
+    const countries = await Country.find();
+    res.json(countries);
+  } catch (error) {
+    console.error('Error fetching countries:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
